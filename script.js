@@ -1,7 +1,7 @@
 const ROLE_INFO = {
   explore: {
     emoji: "📸",
-    icon: "assets/role-explore.svg",
+    icon: "assets/role-explore.png?v=20261011",
     name: "沿途探索家",
     max: 11,
     quote: "都來了，當然要看看沿途有什麼 📷",
@@ -11,7 +11,7 @@ const ROLE_INFO = {
   },
   challenge: {
     emoji: "🔥",
-    icon: "assets/role-challenge.svg",
+    icon: "assets/role-challenge.png?v=20261011",
     name: "熱血挑戰者",
     max: 9,
     quote: "越難，越想證明自己做得到 🔥",
@@ -21,7 +21,7 @@ const ROLE_INFO = {
   },
   team: {
     emoji: "🤝",
-    icon: "assets/role-team.svg",
+    icon: "assets/role-team.png?v=20261011",
     name: "夥伴黏著劑",
     max: 9,
     quote: "去哪很重要，跟誰一起更重要 🤝",
@@ -31,7 +31,7 @@ const ROLE_INFO = {
   },
   steady: {
     emoji: "🛡️",
-    icon: "assets/role-steady.svg",
+    icon: "assets/role-steady.png?v=20261011",
     name: "穩定節奏型",
     max: 11,
     quote: "找到自己的節奏，一路騎到底 🧭",
@@ -736,7 +736,7 @@ homeBtn.addEventListener("click", goHome);
 let currentResult = null;
 let resultImageCache = null;
 const CARD_FONT = '"PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif';
-const CARD_CROPS = { explore: [40, 0, 334, 498], challenge: [0, 0, 473, 518], team: [23, 0, 540, 400], steady: [50, 0, 438, 519] };
+const CARD_CROPS = { explore: [0, 17, 1239, 1237], challenge: [21, 0, 1221, 1254], team: [0, 9, 1242, 1245], steady: [0, 0, 1238, 1254] };
 function loadCardImage(src) {
   return new Promise((resolve, reject) => {
     const image = new Image();
@@ -858,7 +858,7 @@ function paintResultCard(ctx, images, result) {
 }
 async function createResultPng(result) {
   if(document.fonts?.ready)await document.fonts.ready;
-  const entries=await Promise.all(Object.keys(ROLE_INFO).map(async role=>[role,await loadCardImage(`assets/role-${role}.png`)]));
+  const entries=await Promise.all(Object.keys(ROLE_INFO).map(async role=>[role,await loadCardImage(`assets/role-${role}.png?v=20261011`)]));
   const canvas=document.createElement('canvas');canvas.width=1080;canvas.height=1920;
   const ctx=canvas.getContext('2d');if(!ctx)throw new Error('無法產生圖片');
   paintResultCard(ctx,Object.fromEntries(entries),result);
