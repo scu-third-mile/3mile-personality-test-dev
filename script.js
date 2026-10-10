@@ -775,44 +775,30 @@ function paintResultCard(ctx, images, result) {
     const index=info.description.indexOf(marker);
     paragraphs=index>0?[info.description.slice(0,index),info.description.slice(index)]:[info.description];
   }
-  // Explicit semantic breaks for the exported image only; webpage copy stays unchanged.
-  const cardParagraphs = {
-    explore: [
-      ['你在意的不只是抵達終點，也會期待沿途的風景、', '美食、城市和第一次體驗。'],
-      ['對你來說，環島好玩的地方，就是', '每天都有新的發現值得記住。']
-    ],
-    challenge: [
-      ['長坡、逆風、疲累可能很痛苦，', '但越有挑戰，你反而越不想認輸。'],
-      ['對你來說，環島最有成就感的，', '就是把原本覺得很難的事情真的完成。']
-    ],
-    team: [
-      ['你很在意一起騎的人、', '隊伍氣氛和共同回憶。'],
-      ['大家累的時候，你可能就是那個願意陪著撐、', '聊天打氣，讓整個隊伍重新有精神的人。']
-    ],
-    steady: [
-      ['你習慣找到適合自己的節奏，', '知道什麼時候該出力、什麼時候該休息。'],
-      ['遇到狀況時也比較不容易慌，', '是那種穩穩完成、讓人覺得很可靠的人。']
-    ],
-    'challenge|team': [
-      ['你不只想證明自己做得到，', '也很在意身邊的夥伴能不能一起完成。'],
-      ['遇到困難時，你既有不服輸的衝勁，', '也會從大家一起努力這件事得到力量。']
-    ],
-    'explore|steady': [
-      ['你會期待一路上的風景、', '新體驗和不同發現。'],
-      ['同時也懂得掌握自己的狀態、', '穩穩完成旅程。']
-    ]
+  // Keep paragraph boundaries; wrap within each paragraph only at the actual width.
+  const descriptionStart=890, paragraphGap=18, descriptionWidth=760;
+  const wrapParagraph = value => {
+    const lines=[]; let line='';
+    for(const char of [...value]) {
+      if(line && ctx.measureText(line+char).width>descriptionWidth && !/^[，。、！？：；」』）]$/.test(char)) {
+        lines.push(line); line=char;
+      } else line+=char;
+    }
+    if(line)lines.push(line);
+    return lines;
   };
-  const paragraphLines=cardParagraphs[dual ? result.roles.slice().sort().join('|') : result.roles[0]];
-  let descriptionSize=36;
-  while(descriptionSize>30) {
+  let descriptionSize=36, paragraphLines, lineHeight, lastBaseline, cardBottom;
+  while(true) {
     ctx.font=`500 ${descriptionSize}px ${CARD_FONT}`;
-    if(paragraphLines.flat().every(line=>ctx.measureText(line).width<=790))break;
+    paragraphLines=paragraphs.map(wrapParagraph);
+    lineHeight=Math.round(descriptionSize*1.44);
+    const lineCount=paragraphLines.reduce((n,lines)=>n+lines.length,0);
+    lastBaseline=descriptionStart+(lineCount-1)*lineHeight+(paragraphLines.length-1)*paragraphGap;
+    cardBottom=lastBaseline+(dual?90:70);
+    // Reserve room for the four separate tendency rows and the footer within 9:16.
+    if(cardBottom+100+166+3*78+78+132<=1880 || descriptionSize<=30)break;
     descriptionSize--;
   }
-  const descriptionStart=890, lineHeight=52, paragraphGap=18;
-  const lineCount=paragraphLines.reduce((n,lines)=>n+lines.length,0);
-  const lastBaseline=descriptionStart+(lineCount-1)*lineHeight+(paragraphLines.length-1)*paragraphGap;
-  const cardBottom=lastBaseline+(dual?90:70);
   const background=ctx.createLinearGradient(0,0,1080,1920);
   background.addColorStop(0,'#eae6f2'); background.addColorStop(1,'#f5f0ed');
   ctx.fillStyle=background;ctx.fillRect(0,0,1080,1920);
