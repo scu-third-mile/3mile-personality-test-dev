@@ -778,8 +778,8 @@ function paintResultCard(ctx, images, result) {
   // Explicit semantic breaks for the exported image only; webpage copy stays unchanged.
   const cardParagraphs = {
     explore: [
-      ['你在意的不只是抵達終點，', '也會期待沿途的風景、美食、', '城市和第一次體驗。'],
-      ['對你來說，環島好玩的地方，', '就是每天都有新的發現值得記住。']
+      ['你在意的不只是抵達終點，也會期待沿途的風景、', '美食、城市和第一次體驗。'],
+      ['對你來說，環島好玩的地方，就是', '每天都有新的發現值得記住。']
     ],
     challenge: [
       ['長坡、逆風、疲累可能很痛苦，', '但越有挑戰，你反而越不想認輸。'],
@@ -787,7 +787,7 @@ function paintResultCard(ctx, images, result) {
     ],
     team: [
       ['你很在意一起騎的人、', '隊伍氣氛和共同回憶。'],
-      ['大家累的時候，', '你可能就是那個願意陪著撐、聊天打氣，', '讓整個隊伍重新有精神的人。']
+      ['大家累的時候，你可能就是那個願意陪著撐、', '聊天打氣，讓整個隊伍重新有精神的人。']
     ],
     steady: [
       ['你習慣找到適合自己的節奏，', '知道什麼時候該出力、什麼時候該休息。'],
@@ -803,10 +803,16 @@ function paintResultCard(ctx, images, result) {
     ]
   };
   const paragraphLines=cardParagraphs[dual ? result.roles.slice().sort().join('|') : result.roles[0]];
-  const descriptionSize=34, descriptionStart=870, lineHeight=48, paragraphGap=18;
+  let descriptionSize=36;
+  while(descriptionSize>30) {
+    ctx.font=`500 ${descriptionSize}px ${CARD_FONT}`;
+    if(paragraphLines.flat().every(line=>ctx.measureText(line).width<=790))break;
+    descriptionSize--;
+  }
+  const descriptionStart=890, lineHeight=52, paragraphGap=18;
   const lineCount=paragraphLines.reduce((n,lines)=>n+lines.length,0);
   const lastBaseline=descriptionStart+(lineCount-1)*lineHeight+(paragraphLines.length-1)*paragraphGap;
-  const cardBottom=lastBaseline+(dual?125:70);
+  const cardBottom=lastBaseline+(dual?90:70);
   const background=ctx.createLinearGradient(0,0,1080,1920);
   background.addColorStop(0,'#eae6f2'); background.addColorStop(1,'#f5f0ed');
   ctx.fillStyle=background;ctx.fillRect(0,0,1080,1920);
@@ -828,7 +834,7 @@ function paintResultCard(ctx, images, result) {
   let y=descriptionStart;
   paragraphLines.forEach((lines,index)=>{
     if(index)y+=paragraphGap;
-    lines.forEach(line=>{text(line,140,y,descriptionSize,'#eee9f2',false,800,'left');y+=lineHeight;});
+    lines.forEach(line=>{text(line,160,y,descriptionSize,'#eee9f2',false,790,'left');y+=lineHeight;});
   });
   if(dual)text('解鎖少見的雙重角色',540,lastBaseline+65,25,'#efc7c1',false);
   const keywords=dual
