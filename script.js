@@ -775,39 +775,37 @@ function paintResultCard(ctx, images, result) {
     const index=info.description.indexOf(marker);
     paragraphs=index>0?[info.description.slice(0,index),info.description.slice(index)]:[info.description];
   }
-  // Compute all lines at the same font size before painting the card.
-  ctx.font=`500 36px ${CARD_FONT}`;
-  const wrap = value => {
-    const protectedWords=['聊天打氣','一起完成','共同回憶','沿途的風景','穩穩完成','自己的節奏'];
-    const tokens=value.match(new RegExp(protectedWords.join('|')+'|.', 'gu')) || [];
-    const lines=[];let line='';
-    for(const token of tokens) {
-      if(line && ctx.measureText(line+token).width>760 && !/^[，。、！？：；」』）]$/.test(token)) {lines.push(line);line=token;}
-      else line+=token;
-    }
-    if(line)lines.push(line);
-    // Share space between the last two lines instead of leaving a tiny final line.
-    if(lines.length>1) {
-      const index=lines.length-2,last=lines[index+1];
-      if(ctx.measureText(last).width<285) {
-        const chars=[...lines[index]];
-        let tail=last;
-        while(chars.length>1 && ctx.measureText(chars.join('')).width>ctx.measureText(tail).width+72) {
-          const proposed=chars[chars.length-1]+tail;
-          if(ctx.measureText(proposed).width>760)break;
-          tail=chars.pop()+tail;
-        }
-        const left=chars.join('');
-        if(!/^[，。、！？：；」』）]/.test(tail) && !protectedWords.some(word=>word.includes(left.slice(-1)+tail[0]))) {
-          lines[index]=left;lines[index+1]=tail;
-        }
-      }
-    }
-    return lines;
+  // Explicit semantic breaks for the exported image only; webpage copy stays unchanged.
+  const cardParagraphs = {
+    explore: [
+      ['你在意的不只是抵達終點，', '也會期待沿途的風景、美食、', '城市和第一次體驗。'],
+      ['對你來說，環島好玩的地方，', '就是每天都有新的發現值得記住。']
+    ],
+    challenge: [
+      ['長坡、逆風、疲累可能很痛苦，', '但越有挑戰，你反而越不想認輸。'],
+      ['對你來說，環島最有成就感的，', '就是把原本覺得很難的事情真的完成。']
+    ],
+    team: [
+      ['你很在意一起騎的人、', '隊伍氣氛和共同回憶。'],
+      ['大家累的時候，', '你可能就是那個願意陪著撐、聊天打氣，', '讓整個隊伍重新有精神的人。']
+    ],
+    steady: [
+      ['你習慣找到適合自己的節奏，', '知道什麼時候該出力、什麼時候該休息。'],
+      ['遇到狀況時也比較不容易慌，', '是那種穩穩完成、讓人覺得很可靠的人。']
+    ],
+    'challenge|team': [
+      ['你不只想證明自己做得到，', '也很在意身邊的夥伴能不能一起完成。'],
+      ['遇到困難時，你既有不服輸的衝勁，', '也會從大家一起努力這件事得到力量。']
+    ],
+    'explore|steady': [
+      ['你會期待一路上的風景、', '新體驗和不同發現。'],
+      ['同時也懂得掌握自己的狀態、', '穩穩完成旅程。']
+    ]
   };
-  const paragraphLines=paragraphs.map(wrap);
+  const paragraphLines=cardParagraphs[dual ? result.roles.slice().sort().join('|') : result.roles[0]];
+  const descriptionSize=34, descriptionStart=870, lineHeight=48, paragraphGap=18;
   const lineCount=paragraphLines.reduce((n,lines)=>n+lines.length,0);
-  const lastBaseline=890+(lineCount-1)*52+(paragraphLines.length-1)*18;
+  const lastBaseline=descriptionStart+(lineCount-1)*lineHeight+(paragraphLines.length-1)*paragraphGap;
   const cardBottom=lastBaseline+(dual?125:70);
   const background=ctx.createLinearGradient(0,0,1080,1920);
   background.addColorStop(0,'#eae6f2'); background.addColorStop(1,'#f5f0ed');
@@ -827,10 +825,10 @@ function paintResultCard(ctx, images, result) {
   const quote=dual?(dualInfo?.tagline || '一起展現你的環島角色') : ROLE_INFO[result.roles[0]].quote;
   text(quote,540,810,37,'#fffdf8',true,875);
 
-  let y=890;
+  let y=descriptionStart;
   paragraphLines.forEach((lines,index)=>{
-    if(index)y+=18;
-    lines.forEach(line=>{text(line,160,y,36,'#eee9f2',false,790,'left');y+=52;});
+    if(index)y+=paragraphGap;
+    lines.forEach(line=>{text(line,140,y,descriptionSize,'#eee9f2',false,800,'left');y+=lineHeight;});
   });
   if(dual)text('解鎖少見的雙重角色',540,lastBaseline+65,25,'#efc7c1',false);
   const keywords=dual
@@ -838,23 +836,24 @@ function paintResultCard(ctx, images, result) {
     : ROLE_INFO[result.roles[0]].keywords;
   text('關鍵字  '+keywords.join(' ｜ '),540,cardBottom+57,28,'#807b88',true,920);
   const tendencyTop=cardBottom+100;
-  const tendencyBottom=1620;
+  const rowGap=78;
+  const tendencyBottom=tendencyTop+166+3*rowGap+78;
   rounded(55,tendencyTop,970,tendencyBottom-tendencyTop,42,'#faf8fc');
   text('你的四種環島角色傾向',540,tendencyTop+62,42,'#403c57');
   text('依照這次作答呈現出的特質傾向',540,tendencyTop+104,24,'#898294',false);
   const rowStart=tendencyTop+166;
-  const rowGap=(tendencyBottom-78-rowStart)/3;
+
   roles.forEach((role,i)=>{
     const y=rowStart+i*rowGap,isMain=result.roles.includes(role),color=isMain?'#b84235':'#807b88';
-    rover(role,88,y-43,65,62);
+    rover(role,88,y-43,60,58);
     text(ROLE_INFO[role].name,174,y,32,color,true,260,'left');
     rounded(440,y-23,405,17,9,'#e6e1ed');
     if(percents[role]>0)rounded(440,y-23,405*percents[role]/100,17,Math.min(8,405*percents[role]/200),isMain?'#b84235':'#aaa2b8');
     text(`${percents[role]}%`,951,y,36,color,true,100,'right');
   });
   text('最終角色綜合您的整體作答結果判定',540,tendencyBottom-31,24,'#898294',false);
-  text('東吳第3哩，挑戰在一起',540,1704,42,'#898299');
-  text('@su_third_mile',540,1764,30,'#716b83',false);
+  text('東吳第3哩，挑戰在一起',540,tendencyBottom+72,42,'#898299');
+  text('@su_third_mile',540,tendencyBottom+132,30,'#716b83',false);
 }
 async function createResultPng(result) {
   if(document.fonts?.ready)await document.fonts.ready;
