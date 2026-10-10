@@ -222,7 +222,7 @@ const QUESTIONS = [
   },
   {
     id: "q7",
-    title: '<span class="q7-title-line">環島四大酷刑，如果一定要選一個，</span><span class="q7-title-line">你<span class="q7-title-emphasis">比較能接受</span>哪一個？</span>',
+    title: '<span class="q7-title-line">環島四大酷刑，若只能選一個，</span><span class="q7-title-line">你<span class="q7-title-emphasis">比較能接受</span>哪一個？</span>',
     note: "請選相對比較能接受的一個，不是選最怕的。",
     type: "single",
     options: [

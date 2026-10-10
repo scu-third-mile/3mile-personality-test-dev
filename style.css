@@ -2512,3 +2512,10 @@ body::before { opacity: 1; background:
   color: #b64435;
   font-weight: 900;
 }
+
+/* 1010_BE_v4: Q7 title uses shorter first line; keep emphasis, other questions unchanged. */
+@media (max-width: 390px) {
+  .question-title:has(.q7-title-line) {
+    font-size: clamp(1.35rem, 4.9vw, 2rem);
+  }
+}
