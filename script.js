@@ -894,7 +894,7 @@ document.getElementById('shareResultBtn').addEventListener('click',async()=>{
     document.getElementById('imagePreviewStatus').textContent='分享圖片暫時無法產生，請返回結果後重試。';
     showPage(document.getElementById('imagePreviewPage'));
   } finally {
-    button.disabled=false;button.textContent='分享到 IG 限動';
+    button.disabled=false;button.textContent='分享此結果';
   }
 });
 document.getElementById('saveResultBtn').addEventListener('click',async()=>{
